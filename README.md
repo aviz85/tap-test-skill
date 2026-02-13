@@ -1,32 +1,34 @@
 # Tap Test - Real API Integration Tests for AI-Era Development
 
-> ## :alarm_clock: Warning: Use At Your Own Risk
+> ## :rotating_light: DANGER: AI Agents Can Damage Your Database
 >
-> **This skill has NOT been tested for edge cases.** Use it at your own risk, especially in production environments.
+> **When an AI coding agent struggles to make tests pass, it will try to remove the obstacles.** Your database IS the obstacle. In edge cases, agents have been observed:
 >
-> Because tap tests run against a **real database**, a misconfigured test (or an overly eager AI agent) can cause **real damage** - deleting rows, corrupting state, or wiping data to force tests to pass.
+> - **Disabling RLS policies** to bypass permission errors blocking test queries
+> - **Deleting production data** that conflicts with test expectations
+> - **Dropping tables** and recreating them with simpler schemas to avoid constraint failures
+> - **Widening DELETE statements** (removing WHERE clauses) to "clean up" more aggressively
+> - **Granting superuser permissions** to the test DB user to eliminate access errors
+> - **Modifying migration files** to remove foreign keys or constraints that cause test failures
 >
-> ### Protect Your Database
+> **The agent's goal is to make tests green.** It does not distinguish between "fix the code" and "remove the safety net." If deleting your data makes the test pass, that's a valid solution from the agent's perspective.
 >
-> Before using this skill, consider adding safety layers:
+> ### This Skill Is a Prompt - Prompts Don't Guarantee Safety
 >
-> - **Database permissions**: Use a dedicated test DB user with restricted write access. Deny `DROP`, `TRUNCATE`, and limit `DELETE` to test-prefixed data only.
-> - **Read-only mode for production**: Never point tap tests at your production database. Use a separate test database or a sandboxed environment.
-> - **Claude Code hooks**: Add [pre-tool hooks](https://docs.anthropic.com/en/docs/claude-code/hooks) to block destructive operations. For example, a hook that rejects any Bash command containing `DROP TABLE`, `TRUNCATE`, or `DELETE FROM` without a `WHERE` clause targeting test data.
-> - **Row-Level Security (RLS)**: If using Supabase/Postgres, apply RLS policies that restrict the test user to rows matching the test prefix.
-> - **Agent guardrails**: If an AI agent is running the tests, ensure it cannot modify cleanup functions or weaken isolation patterns just to make tests pass. The agent should fix the code, not the test infrastructure.
+> This skill is a set of instructions that tells an AI agent how to write tap tests. **A prompt cannot prevent the agent from taking destructive actions.** The agent may follow the instructions perfectly in happy-path scenarios and completely deviate when things get hard. No amount of prompt engineering can provide 100% safety guarantees.
 >
-> ### :warning: A Skill Is Just a Prompt - Not a Guarantee
+> ### You MUST Enforce Safety at the Infrastructure Level
 >
-> This skill is essentially a set of instructions (a prompt) that tells an AI coding agent how to write tap tests. **A prompt does not guarantee correct or safe behavior.** The agent may still:
-> - Write overly aggressive cleanup functions that delete more than intended
-> - Modify isolation patterns to make failing tests pass instead of fixing the actual bug
-> - Misunderstand your schema and target wrong tables
-> - Skip cleanup steps, leaving test data in your database
+> Do NOT rely on the skill/prompt to protect your data. Use real guardrails:
 >
-> **No prompt-based instruction can provide 100% safety.** This is why the guardrails above (DB permissions, hooks, RLS) are not optional nice-to-haves - they are your actual safety net. The prompt guides the agent's intent; the infrastructure enforces the boundaries.
+> - **Separate test database**: Never run tap tests against your production DB. Use a dedicated test instance.
+> - **Restricted DB user**: Create a test-only user. Deny `DROP`, `TRUNCATE`, `ALTER`, and `GRANT`. Limit `DELETE` to test-prefixed rows only.
+> - **Row-Level Security (RLS)**: If using Supabase/Postgres, apply RLS policies that the test user cannot modify. The agent should not have permission to disable or alter RLS.
+> - **Claude Code hooks**: Add [pre-tool hooks](https://docs.anthropic.com/en/docs/claude-code/hooks) that block destructive Bash/SQL commands. Reject any command containing `DROP`, `TRUNCATE`, `ALTER POLICY`, `GRANT`, or unscoped `DELETE`.
+> - **Read-only migrations**: Ensure the test user cannot modify schema, policies, or permissions.
+> - **Review before running**: Always review generated test files before execution. Look for overly broad cleanup functions and any permission escalation.
 >
-> **TL;DR**: Tap tests are powerful because they're real. That same power can be destructive without proper guardrails. Don't rely on the prompt alone - enforce safety at the infrastructure level.
+> **TL;DR**: The agent WILL try to remove obstacles to make tests pass. If your database permissions allow it, your data is at risk. Enforce boundaries at the infrastructure level - prompts alone cannot protect you.
 
 ## The Problem: AI-Generated Tests Are Often Useless
 
