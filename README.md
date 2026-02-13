@@ -16,7 +16,17 @@
 > - **Row-Level Security (RLS)**: If using Supabase/Postgres, apply RLS policies that restrict the test user to rows matching the test prefix.
 > - **Agent guardrails**: If an AI agent is running the tests, ensure it cannot modify cleanup functions or weaken isolation patterns just to make tests pass. The agent should fix the code, not the test infrastructure.
 >
-> **TL;DR**: Tap tests are powerful because they're real. That same power can be destructive without proper guardrails.
+> ### :warning: A Skill Is Just a Prompt - Not a Guarantee
+>
+> This skill is essentially a set of instructions (a prompt) that tells an AI coding agent how to write tap tests. **A prompt does not guarantee correct or safe behavior.** The agent may still:
+> - Write overly aggressive cleanup functions that delete more than intended
+> - Modify isolation patterns to make failing tests pass instead of fixing the actual bug
+> - Misunderstand your schema and target wrong tables
+> - Skip cleanup steps, leaving test data in your database
+>
+> **No prompt-based instruction can provide 100% safety.** This is why the guardrails above (DB permissions, hooks, RLS) are not optional nice-to-haves - they are your actual safety net. The prompt guides the agent's intent; the infrastructure enforces the boundaries.
+>
+> **TL;DR**: Tap tests are powerful because they're real. That same power can be destructive without proper guardrails. Don't rely on the prompt alone - enforce safety at the infrastructure level.
 
 ## The Problem: AI-Generated Tests Are Often Useless
 
