@@ -1,5 +1,23 @@
 # Tap Test - Real API Integration Tests for AI-Era Development
 
+> ## :alarm_clock: Warning: Use At Your Own Risk
+>
+> **This skill has NOT been tested for edge cases.** Use it at your own risk, especially in production environments.
+>
+> Because tap tests run against a **real database**, a misconfigured test (or an overly eager AI agent) can cause **real damage** - deleting rows, corrupting state, or wiping data to force tests to pass.
+>
+> ### Protect Your Database
+>
+> Before using this skill, consider adding safety layers:
+>
+> - **Database permissions**: Use a dedicated test DB user with restricted write access. Deny `DROP`, `TRUNCATE`, and limit `DELETE` to test-prefixed data only.
+> - **Read-only mode for production**: Never point tap tests at your production database. Use a separate test database or a sandboxed environment.
+> - **Claude Code hooks**: Add [pre-tool hooks](https://docs.anthropic.com/en/docs/claude-code/hooks) to block destructive operations. For example, a hook that rejects any Bash command containing `DROP TABLE`, `TRUNCATE`, or `DELETE FROM` without a `WHERE` clause targeting test data.
+> - **Row-Level Security (RLS)**: If using Supabase/Postgres, apply RLS policies that restrict the test user to rows matching the test prefix.
+> - **Agent guardrails**: If an AI agent is running the tests, ensure it cannot modify cleanup functions or weaken isolation patterns just to make tests pass. The agent should fix the code, not the test infrastructure.
+>
+> **TL;DR**: Tap tests are powerful because they're real. That same power can be destructive without proper guardrails.
+
 ## The Problem: AI-Generated Tests Are Often Useless
 
 When you ask an AI coding agent to "write tests", you typically get:
