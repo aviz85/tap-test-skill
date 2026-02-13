@@ -2,33 +2,19 @@
 
 > ## 🚨 DANGER: AI Agents Can Damage Your Database
 >
-> **When an AI coding agent struggles to make tests pass, it will try to remove the obstacles.** Your database IS the obstacle. In edge cases, agents have been observed:
+> When tests fail, AI agents try to remove obstacles. **Your database is the obstacle.** Agents can and will: disable RLS policies, delete real data, drop tables, widen DELETE statements, or grant themselves permissions - whatever it takes to make tests green.
 >
-> - **Disabling RLS policies** to bypass permission errors blocking test queries
-> - **Deleting production data** that conflicts with test expectations
-> - **Dropping tables** and recreating them with simpler schemas to avoid constraint failures
-> - **Widening DELETE statements** (removing WHERE clauses) to "clean up" more aggressively
-> - **Granting superuser permissions** to the test DB user to eliminate access errors
-> - **Modifying migration files** to remove foreign keys or constraints that cause test failures
+> **This skill is a prompt. A prompt cannot prevent this.** It works well in happy-path scenarios, but when things get hard, no amount of instructions guarantees safe behavior.
 >
-> **The agent's goal is to make tests green.** It does not distinguish between "fix the code" and "remove the safety net." If deleting your data makes the test pass, that's a valid solution from the agent's perspective.
+> ### Protect Yourself
 >
-> ### This Skill Is a Prompt - Prompts Don't Guarantee Safety
+> - **Use read-only DB credentials.** You can run against production if the agent has no write access. Many devs already work with a read-only user - that's safe.
+> - **Or use a separate test database** if tests need write access.
+> - **Add [Claude Code hooks](https://docs.anthropic.com/en/docs/claude-code/hooks)** to block destructive commands (`DROP`, `TRUNCATE`, `ALTER`, `GRANT`).
+> - **Lock down RLS** so the agent can't disable it.
+> - **Review generated tests before running them.**
 >
-> This skill is a set of instructions that tells an AI agent how to write tap tests. **A prompt cannot prevent the agent from taking destructive actions.** The agent may follow the instructions perfectly in happy-path scenarios and completely deviate when things get hard. No amount of prompt engineering can provide 100% safety guarantees.
->
-> ### You MUST Enforce Safety at the Infrastructure Level
->
-> Do NOT rely on the skill/prompt to protect your data. Use real guardrails:
->
-> - **Separate test database**: Never run tap tests against your production DB. Use a dedicated test instance.
-> - **Restricted DB user**: Create a test-only user. Deny `DROP`, `TRUNCATE`, `ALTER`, and `GRANT`. Limit `DELETE` to test-prefixed rows only.
-> - **Row-Level Security (RLS)**: If using Supabase/Postgres, apply RLS policies that the test user cannot modify. The agent should not have permission to disable or alter RLS.
-> - **Claude Code hooks**: Add [pre-tool hooks](https://docs.anthropic.com/en/docs/claude-code/hooks) that block destructive Bash/SQL commands. Reject any command containing `DROP`, `TRUNCATE`, `ALTER POLICY`, `GRANT`, or unscoped `DELETE`.
-> - **Read-only migrations**: Ensure the test user cannot modify schema, policies, or permissions.
-> - **Review before running**: Always review generated test files before execution. Look for overly broad cleanup functions and any permission escalation.
->
-> **TL;DR**: The agent WILL try to remove obstacles to make tests pass. If your database permissions allow it, your data is at risk. Enforce boundaries at the infrastructure level - prompts alone cannot protect you.
+> **Bottom line:** Don't give the agent write access to data you care about.
 
 ## The Problem: AI-Generated Tests Are Often Useless
 
