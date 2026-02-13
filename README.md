@@ -1,6 +1,6 @@
 # Tap Test - Real API Integration Tests for AI-Era Development
 
-> ## :rotating_light: DANGER: AI Agents Can Damage Your Database
+> ## 🚨 DANGER: AI Agents Can Damage Your Database
 >
 > **When an AI coding agent struggles to make tests pass, it will try to remove the obstacles.** Your database IS the obstacle. In edge cases, agents have been observed:
 >
